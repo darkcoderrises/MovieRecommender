@@ -1,13 +1,14 @@
 from parse_input import parse_input
 import numpy as np
+import time
 
 float_formatter = lambda x: "%.2f" % x 
 np.set_printoptions(formatter={'float_kind':float_formatter})
 
-a = 0.1
+learning_rate = 0.01
+regularization = 0.01
 d = 25
 P = parse_input()
-lamdba_ = 100
 
 nv = np.shape(P)[1]
 nu = np.shape(P)[0]
@@ -29,17 +30,19 @@ for i in range(1, nv):
         V[j, i] = np.random.random()
 
 #ITERATING
+rows,cols = P.nonzero()
 lim = 10000
 while (lim):
     lim -= 1
 
-    r = np.dot(U, V)
-    e = P - r
-    
-    for i in xrange(nu):
-        for j in xrange(nv):
-            U[i] = U[i] + a*(e[i][j]*V[:,j]-a*U[i])
-            V[:,j] = V[:,j] + a*(e[i][j]*U[i]-a*V[:,j])
+    t1 = time.time()
+    for u,i in zip(rows,cols):
+        e = P[u,i] - np.dot(U[u,:],V[:,i])
+        p_temp = learning_rate * (e * V[:,i] - regularization * U[u,:])
 
-    print get_error(P, r)
+        V[:,i] += learning_rate * ( e * U[u,:] - regularization * V[:,i])
+        U[u,:] += p_temp
+
+
+    print time.time()-t1,get_error(P, np.dot(U,V))
 

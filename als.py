@@ -1,5 +1,6 @@
 from parse_input import parse_input
 import numpy as np
+import time
 
 float_formatter = lambda x: "%.2f" % x 
 np.set_printoptions(formatter={'float_kind':float_formatter})
@@ -32,9 +33,10 @@ lim = 1000
 while (lim):
     lim -= 1
 
+    t1 = time.time()
     U = np.linalg.solve(np.dot(V, V.T) + lamdba_ * np.eye(d), np.dot(V, P.T)).T 
     V = np.linalg.solve(np.dot(U.T, U) + lamdba_ * np.eye(d), np.dot(U.T, P)) 
 
     r = np.dot(U, V)
-    print get_error(P, r)
+    print time.time()-t1, get_error(P, r)
 
