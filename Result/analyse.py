@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 l = []
 b = []
 
-data = open('svd/data').read().split('\n')[:-1]
+data = open('knn/data').read().split('\n')[:-1]
 
 for i in data:
     print i.split(" ")
