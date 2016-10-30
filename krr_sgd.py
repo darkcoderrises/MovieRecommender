@@ -31,8 +31,9 @@ for i in range(1, nv):
 
 #ITERATING
 rows,cols = P.nonzero()
-lim = 10000
+lim = 2
 while (lim):
+    print lim
     lim -= 1
 
     t1 = time.time()
@@ -44,5 +45,26 @@ while (lim):
         U[u,:] += p_temp
 
 
-    print time.time()-t1,get_error(P, np.dot(U,V)), get_error(T, np.dot(U,V))
+P_ = U.dot(V)
 
+for i in range(1,nu):
+    print i,
+    indexs = P[i] > 0 
+    if sum(indexs) == 0:
+        continue
+    X = V[:,indexs].T
+    X = X / (((X**2).sum(axis=1))**0.5)[:,None]
+    Y = P[i, indexs]
+    try:
+        Z = np.linalg.inv(kernel(X,X)+1).dot(Y)
+#        if abs(Z[0])>100:
+#            raise ValueError(' ')
+    except:
+        continue
+
+    for j in range(1, nv):
+        x = V[:,j]/(sum(V[:,j]**2)**0.5+0.1)
+        y_ = kernel(x,X).dot(Z)
+        P_[i,j] = y_
+
+    print get_error(P,P_), get_error(T,P_)

@@ -7,6 +7,7 @@ np.set_printoptions(formatter={'float_kind':float_formatter})
 
 d = 25
 P,T = parse_input()
+P = P + T
 lamdba_ = 100
 
 nv = np.shape(P)[1]
@@ -29,14 +30,37 @@ for i in range(1, nv):
         V[j, i] = np.random.random()
 
 #ITERATING
-lim = 1000
+lim = 10
 while (lim):
+    print lim
     lim -= 1
 
-    t1 = time.time()
     U = np.linalg.solve(np.dot(V, V.T) + lamdba_ * np.eye(d), np.dot(V, P.T)).T 
     V = np.linalg.solve(np.dot(U.T, U) + lamdba_ * np.eye(d), np.dot(U.T, P)) 
 
-    r = np.dot(U, V)
-    print time.time()-t1, get_error(P, r), get_error(T, r)
+def kernel(x,y):
+    return np.exp(2*x.dot(y.T)-2)
 
+P_ = U.dot(V)
+
+for i in range(1,nu):
+    print i,
+    indexs = P[i] > 0
+    if sum(indexs) == 0:
+        continue
+    X = V[:,indexs].T
+    X = X / (((X**2).sum(axis=1))**0.5)[:,None]
+    Y = P[i, indexs]
+    try:
+        Z = np.linalg.inv(kernel(X,X)+0.5).dot(Y)
+        if abs(Z[0])>100:
+            raise ValueError(' ')
+    except:
+        continue
+
+    for j in range(1, nv):
+        x = V[:,j]/(sum(V[:,j]**2)**0.5+0.1)
+        y_ = kernel(x,X).dot(Z)
+        P_[i,j] = y_
+
+    print get_error(P,P_)
